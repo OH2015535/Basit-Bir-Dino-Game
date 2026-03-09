@@ -9,6 +9,40 @@
     <meta name="keywords" content="Bu Oyunda Çok Hızlısın Bence Space Tuşuna Hızlı Bas.">
     
     <style>
+        /* Kamerayı en arkaya, tam ekran yerleştiriyoruz */
+#camera-stream {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1; /* Oyunun arkasında kalsın diye */
+}
+
+/* Oyun alanını (canvas) şeffaf yapıyoruz ki gökyüzü görünsün */
+canvas {
+    background-color: transparent !important;
+}
+
+/* Başla butonunun olduğu ekran */
+#start-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+#start-button {
+    padding: 20px 40px;
+    font-size: 24px;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
         body { 
             margin: 0; 
             display: flex; 
@@ -144,7 +178,24 @@ window.addEventListener('keydown', (e) => {
 
 // Oyunu Başlat
 gameLoop();
+    const video = document.getElementById('camera-stream');
+
+// Kamerayı başlatma komutu
+navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+    .then(stream => {
+        video.srcObject = stream;
+    })
+    .catch(err => {
+        console.error("Kamera açılırken hata oldu: ", err);
+    });
+
+// Başla butonuna basınca oyunu başlat
+document.getElementById('start-button').addEventListener('click', function() {
+    document.getElementById('start-screen').style.display = 'none';
+    // Buraya senin oyununu başlatan fonksiyonu (mesela startGame();) eklemeliyiz.
+});
 </script>
 </body>
 </html>
+
 
