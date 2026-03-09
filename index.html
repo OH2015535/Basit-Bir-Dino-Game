@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basit Bir Dino Game</title>
+    <meta name="description" content="Alper'in hazırladığı, eğlenceli ve hızlanan Basit Bir Dino Game. Kuşlardan ve kaktüslerden kaç, en yüksek skoru yap!">
+    <meta name="keywords" content="Basit Bir Dino Game, Dinozor Oyunu, Alper, Ücretsiz Oyun">
+    
+    <style>
+        body { 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background-color: #f7f7f7; 
+            font-family: 'Courier New', Courier, monospace; 
+            overflow: hidden; 
+            color: #535353;
+        }
+        canvas { 
+            background-color: #fff; 
+            border-bottom: 3px solid #535353; 
+            border-radius: 5px; 
+            max-width: 95%;
+        }
+        .header { text-align: center; margin-bottom: 20px; }
+        .score-board { font-size: 28px; font-weight: bold; margin-bottom: 10px; }
+        .controls { margin-top: 15px; font-size: 14px; color: #777; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Basit Bir Dino Game</h1>
+        <div class="score-board" id="scoreText">SKOR: 0</div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="controls">Zıplamak için <b>BOŞLUK (SPACE)</b> tuşuna bas!</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Ekran boyutuna göre ayarla
+canvas.width = 800;
+canvas.height = 200;
+
+let score = 0;
+let gameSpeed = 6;
+let isGameOver = false;
+let obstacles = [];
+
+const dino = {
+    x: 50,
+    y: 160,
+    width: 40,
+    height: 40,
+    dy: 0,
+    jumpForce: 12,
+    gravity: 0.6,
+    grounded: false
+};
+
+function spawnObstacle() {
+    const isBird = Math.random() < 0.3; // %30 ihtimalle kuş
+    obstacles.push({
+        x: canvas.width,
+        y: isBird ? 110 : 160, // Kuş yukarıda, kaktüs yerde
+        width: isBird ? 40 : 25,
+        height: isBird ? 25 : 40,
+        color: isBird ? "#3498db" : "#2ecc71",
+        type: isBird ? 'bird' : 'cactus'
+    });
+}
+
+function gameLoop() {
+    if (isGameOver) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Yerçekimi ve Zıplama
+    dino.dy += dino.gravity;
+    dino.y += dino.dy;
+
+    if (dino.y + dino.height > canvas.height) {
+        dino.y = canvas.height - dino.height;
+        dino.dy = 0;
+        dino.grounded = true;
+    }
+
+    // Dinozoru Çiz
+    ctx.fillStyle = "#535353";
+    ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
+
+    // Engelleri Yönet
+    if (Math.random() < 0.012 && (obstacles.length === 0 || obstacles[obstacles.length-1].x < canvas.width - 250)) {
+        spawnObstacle();
+    }
+
+    obstacles.forEach((ob, index) => {
+        ob.x -= gameSpeed;
+        ctx.fillStyle = ob.color;
+        ctx.fillRect(ob.x, ob.y, ob.width, ob.height);
+
+        // Çarpışma Kontrolü
+        if (dino.x < ob.x + ob.width &&
+            dino.x + dino.width > ob.x &&
+            dino.y < ob.y + ob.height &&
+            dino.y + dino.height > ob.y) {
+            isGameOver = true;
+            alert("OYUN BİTTİ! Skorun: " + score + "\nTekrar denemek için sayfayı yenile.");
+            location.reload();
+        }
+
+        // Skor ve Hızlanma
+        if (ob.x + ob.width < 0) {
+            obstacles.splice(index, 1);
+            score++;
+            document.getElementById('scoreText').innerText = "SKOR: " + score;
+            gameSpeed += 0.07; // Her puanda biraz daha hızlanır
+        }
+    });
+
+    requestAnimationFrame(gameLoop);
+}
+
+// Kontroller
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && dino.grounded) {
+        dino.dy = -dino.jumpForce;
+        dino.grounded = false;
+    }
+});
+
+// Oyunu Başlat
+gameLoop();
+</script>
+</body>
+</html>
