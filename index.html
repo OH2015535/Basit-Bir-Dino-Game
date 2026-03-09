@@ -89,10 +89,19 @@
             ctx.fillStyle = "white";
             ctx.fillRect(dino.x, dino.y, dino.w, dino.h);
             ctx.fillStyle = "black";
-            ctx.fillRect(dino.x + 35, dino.y + 10, 8, 8);
+            // --- ENGEL MESAFESİ AYARI (Üst üste binmeyi önler) ---
+            let canSpawn = true;
+            if (obstacles.length > 0) {
+                let lastObs = obstacles[obstacles.length - 1];
+                // Eğer son engel ekranın yarısından fazlasını (600px) geçmediyse yenisi GELMESİN
+                if (lastObs.x > (canvas.width - 600)) { 
+                    canSpawn = false; 
+                }
+            }
 
-            if (Math.random() < 0.015) {
+            if (canSpawn && Math.random() < 0.02) {
                 obstacles.push({ x: canvas.width, y: canvas.height - 100, w: 40, h: 50 });
+            }
             }
             
             obstacles.forEach((obs, index) => {
@@ -117,3 +126,4 @@
             requestAnimationFrame(animate);
         }
     </script>
+
